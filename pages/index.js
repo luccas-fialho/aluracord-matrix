@@ -36,11 +36,13 @@ function Title(props) {
         <>
             <Tag>{props.children}</Tag>
             <style jsx>{`
+            @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
             ${Tag} {
                 color: ${appConfig.theme.colors.primary['550']};
                 font-size: 24px;
                 font-weight: 600;
-                font-family: Bahnschrift Light, sans-serif;
+                line-height: 1.5;
+                font-family: 'Press Start 2P', Bahnschrift Light, sans-serif;
             }
             `}</style>
         </>
@@ -101,7 +103,7 @@ export default function PaginaInicial() {
                         }}
                     >
                         <Title tag="h1">Boas vindas de volta!</Title>
-                        <Text variant="body3" styleSheet={{ marginBottom: '32px', color: appConfig.theme.colors.neutrals[300] }}>
+                        <Text variant="body3" styleSheet={{ marginBottom: '16px', marginTop: '16px', color: appConfig.theme.colors.neutrals[300] }}>
                             {appConfig.name}
                         </Text>
 
