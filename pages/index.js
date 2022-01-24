@@ -117,6 +117,7 @@ export default function PaginaInicial() {
                                     backgroundColor: appConfig.theme.colors.neutrals[800],
                                 },
                             }}
+                            placeholder='Username'
                         />
                         <Button
                             type='submit'
