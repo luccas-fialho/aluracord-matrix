@@ -159,6 +159,17 @@ export default function PaginaInicial() {
                             }}
                             src={username.length > 2 ? `https://github.com/${username}.png` : defaultProfileImage}
                         />
+                        <Text
+                                variant="body4"
+                                styleSheet={{
+                                    color: appConfig.theme.colors.primary[550],
+                                    backgroundColor: appConfig.theme.colors.neutrals[900],
+                                    padding: '3px 10px',
+                                    borderRadius: '1000px'
+                                }}
+                            >
+                                {username}
+                            </Text>
                         {username.length > 2 && (<Box
                             styleSheet={{
                                 display: 'flex',
