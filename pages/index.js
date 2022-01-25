@@ -41,6 +41,15 @@ export default function PaginaInicial() {
     const [username, setUsername] = React.useState('luccas-fialho');
     const roteamento = useRouter();
     const defaultProfileImage = 'https://i.imgur.com/ErUTQmz.png';
+    const [githubData, setGithubData] = React.useState('');
+
+    fetch(`https://api.github.com/users/${username}`)
+            .then((res) => {
+                return res.json()
+            })
+            .then((data) => {
+                setGithubData(data)
+            })
 
     return (
         <>
@@ -150,18 +159,44 @@ export default function PaginaInicial() {
                             }}
                             src={username.length > 2 ? `https://github.com/${username}.png` : defaultProfileImage}
                         />
-                        <Text
-                            variant="body4"
+                        {username.length > 2 && (<Box
                             styleSheet={{
-                                color: appConfig.theme.colors.primary[550],
-                                backgroundColor: appConfig.theme.colors.neutrals[900],
-                                padding: '3px 10px',
-                                borderRadius: '1000px'
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                maxWidth: '200px',
+                                padding: '16px',
+                                backgroundColor: appConfig.theme.colors.neutrals[800],
+                                flex: 1,
+                                
                             }}
                         >
-                            {username}
-                        </Text>
+                            <Text
+                                variant="body4"
+                                styleSheet={{
+                                    color: appConfig.theme.colors.primary[550],
+                                    backgroundColor: appConfig.theme.colors.neutrals[900],
+                                    padding: '3px 10px',
+                                    borderRadius: '1000px'
+                                }}
+                            >
+                                {githubData.name}
+                            </Text>
+                            <Text
+                                variant="body4"
+                                styleSheet={{
+                                    color: appConfig.theme.colors.primary[550],
+                                    backgroundColor: appConfig.theme.colors.neutrals[900],
+                                    padding: '3px 10px',
+                                    borderRadius: '1000px'
+                                }}
+                            >
+                                {githubData.location}
+                            </Text>
+                        </Box>
+                        )}
                     </Box>
+
                     {/* Photo Area */}
                 </Box>
             </Box>
