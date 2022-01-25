@@ -1,34 +1,8 @@
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
+import React from 'react';
+import { useRouter } from 'next/router'
 import appConfig from '../config.json';
-
-function GlobalStyle() {
-    return (
-        <style global jsx>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          list-style: none;
-        }
-        body {
-          font-family: 'Open Sans', sans-serif;
-        }
-        /* App fit Height */ 
-        html, body, #__next {
-          min-height: 100vh;
-          display: flex;
-          flex: 1;
-        }
-        #__next {
-          flex: 1;
-        }
-        #__next > * {
-          flex: 1;
-        }
-        /* ./App fit Height */ 
-      `}</style>
-    );
-}
+import react from 'react';
 
 function Title(props) {
     const Tag = props.tag || 'h1';
@@ -63,11 +37,13 @@ function Title(props) {
 // export default HomePage
 
 export default function PaginaInicial() {
-    const username = 'luccas-fialho';
+    //const username = 'luccas-fialho';
+    const [username, setUsername] = React.useState('luccas-fialho');
+    const roteamento = useRouter();
+    const defaultProfileImage = 'https://i.imgur.com/ErUTQmz.png';
 
     return (
         <>
-            <GlobalStyle />
             <Box
                 styleSheet={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -97,6 +73,11 @@ export default function PaginaInicial() {
                     {/* Formulário */}
                     <Box
                         as="form"
+                        onSubmit={(event)=>{
+                            event.preventDefault();
+                            console.log('Alguem submeteu o form');
+                            roteamento.push('/chat');
+                        }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -108,6 +89,16 @@ export default function PaginaInicial() {
                         </Text>
 
                         <TextField
+                            required
+                            value = {username}
+                            onChange={(event)=>{
+                                console.log('usuario digitou', event.target.value);
+                                // Onde ta o valor?
+                                const valor = event.target.value;
+                                // Trocar o valor da variavel
+                                // Através do React e avise quem precisa
+                                setUsername(valor);
+                            }}
                             fullWidth
                             textFieldColors={{
                                 neutral: {
@@ -122,6 +113,8 @@ export default function PaginaInicial() {
                         <Button
                             type='submit'
                             label='Entrar'
+                            disabled={username.length < 3}
+                            required
                             fullWidth
                             buttonColors={{
                                 contrastColor: appConfig.theme.colors.neutrals["000"],
@@ -155,7 +148,7 @@ export default function PaginaInicial() {
                                 borderRadius: '50%',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            src={username.length > 2 ? `https://github.com/${username}.png` : defaultProfileImage}
                         />
                         <Text
                             variant="body4"
