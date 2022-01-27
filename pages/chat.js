@@ -2,12 +2,29 @@ import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
 
+function Title(props) {
+    const Tag = props.tag || 'h1';
+    return (
+        <>
+            <Tag>{props.children}</Tag>
+            <style jsx>{`
+            @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+            ${Tag} {
+                color: ${appConfig.theme.colors.primary['550']};
+                font-size: 24px;
+                font-weight: 600;
+                line-height: 1.5;
+                font-family: 'Press Start 2P', Bahnschrift Light, sans-serif;
+            }
+            `}</style>
+        </>
+    );
+}
+
 export default function ChatPage() {
     // Sua lógica vai aqui
     const [message, setMessage] = React.useState('');
     const [messageList, setMessageList] = React.useState([]);
-    const [time, setTime] = React.useState('');
-    
 
     function handleNewMessage(newMessage) {
         const message = {
@@ -22,6 +39,15 @@ export default function ChatPage() {
         ]);
         setMessage('');
     }
+
+    function handleDeleteMessage(event) {
+        const messageId = Number(event.target.dataset.id)
+        const messageListFiltered = messageList.filter((messageFiltered) => {
+            return messageFiltered.id != messageId
+        })
+
+        setMessageList(messageListFiltered)
+    }
     // ./Sua lógica vai aqui
     return (
         <Box
@@ -31,7 +57,7 @@ export default function ChatPage() {
                 backgroundImage: `url(https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/38094b95235473.5e92ecc4409a8.gif)`,
                 backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 color: appConfig.theme.colors.neutrals['000'],
-                
+
             }}
         >
             <Box
@@ -62,12 +88,12 @@ export default function ChatPage() {
                         flexDirection: 'column',
                         borderRadius: '5px',
                         padding: '16px',
-                        
+
                     }}
                 >
 
                     {/* <MessageList mensagens={[]} /> */}
-                    <MessageList messages={messageList} />
+                    <MessageList messages={messageList} handleDeleteMessage={handleDeleteMessage} />
                     {/* {messageList.map((actualMessage) => {
                         return (
                             <li key={actualMessage.id}>
@@ -92,10 +118,13 @@ export default function ChatPage() {
                             onKeyPress={(event) => {
                                 if (event.key === 'Enter') {
                                     event.preventDefault();
-                                    handleNewMessage(message);
+                                    if (message.length > 0)
+                                        handleNewMessage(message);
                                 }
                             }}
                             placeholder="Insira sua mensagem aqui..."
+                            color='orange'
+                            outlined
                             type="textarea"
                             wrap="hard"
                             styleSheet={{
@@ -115,10 +144,8 @@ export default function ChatPage() {
                             label='Enviar'
                             onClick={(event) => {
                                 event.preventDefault();
-                                
-                                setTime(new Date());
-                                console.log(time);
-                                handleNewMessage(message, time);
+                                if (message.length > 0)
+                                    handleNewMessage(message);
                             }}
                             //fullWidth
                             buttonColors={{
@@ -139,14 +166,19 @@ function Header() {
     return (
         <>
             <Box styleSheet={{ width: '100%', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
-                <Text variant='heading5'>
+                <Title>
                     PixelChat
-                </Text>
+                </Title>
                 <Button
-                    variant='tertiary'
-                    colorVariant='neutral'
+                    type='submit'
                     label='Logout'
-                    href="/"
+                    buttonColors={{
+                        contrastColor: appConfig.theme.colors.neutrals["000"],
+                        mainColor: appConfig.theme.colors.primary[550],
+                        mainColorLight: appConfig.theme.colors.primary[500],
+                        mainColorStrong: appConfig.theme.colors.primary[500],
+                    }}
+                    href='/'
                 />
             </Box>
         </>
@@ -154,37 +186,31 @@ function Header() {
 }
 
 function MessageList(props) {
+    const handleDeleteMessage = props.handleDeleteMessage;
     console.log('MessageList', props);
-    const [show, setTrue] = React.useState('true');
     return (
         <Box
             tag="ul"
 
             styleSheet={{
-                overflow:'auto',
+                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column-reverse',
                 flex: 1,
                 color: appConfig.theme.colors.neutrals["000"],
-                
+                marginBottom: '16px',
             }}
         >
             {props.messages.map((message) => {
                 return (
                     <Text
+                        onClick={handleDeleteMessage}
                         key={message.id}
                         tag="li"
-                         onMouseOver={(event) => {
-                            event.preventDefault();
-                            setTrue('true');
-                        }} 
-                        /* onMouseOut={(event)=>{
-                            event.preventDefault();
-                            setTrue('false');
-                        }}  */
                         styleSheet={{
                             borderRadius: '5px',
-                            padding: '0px',
+                            padding: '6px',
+                            marginBottom: '12px',
                             wordBreak: 'break-word',
                             borderWidth: '0px',
                             borderStyle: 'solid',
@@ -192,11 +218,12 @@ function MessageList(props) {
                             hover: {
                                 backgroundColor: 'rgba( 0, 0, 0, 0.6)',
                             }
-                            
+
                         }}
                     >
                         <Box
                             styleSheet={{
+                                marginBottom: '8px',
                                 position: 'relative',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -213,10 +240,10 @@ function MessageList(props) {
                                 }}
                                 src={`https://github.com/luccas-fialho.png`}
                             />
-                            <Text 
+                            <Text
                                 styleSheet={{
                                     fontSize: '20px',
-                                
+                                    color: appConfig.theme.colors.primary[500]
                                 }}
                                 tag="strong"
                             >
@@ -227,26 +254,18 @@ function MessageList(props) {
                                     fontSize: '14px',
                                     marginLeft: '8px',
                                     color: appConfig.theme.colors.neutrals[300],
-                                    marginTop: '10px',
-                                    SmarginBottom: '10px',
+
                                 }}
                                 tag="span"
                             >
-                               
+                                {message.dateSend.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </Text>
-                            {show === 'true' && (<Button
-                                type='submit'
-                                label='x'
-                                onMouseOver={(event)=>{
-                                    event.preventDefault();
-                                    setTrue('True');
-                                }}
-                                onMouseOut={(event)=>{
-                                    event.preventDefault();
-                                    setTrue('false');
-                                }}
+
+                            <Text
+                                tag="span"
+                                data-id={message.id}
                                 styleSheet={{
-                                    fontSize: '10px',
+                                    fontSize: '15px',
                                     fontWeight: 'bold',
                                     marginLeft: 'auto',
                                     width: '20px',
@@ -254,24 +273,22 @@ function MessageList(props) {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-
+                                    cursor: 'pointer',
+                                    backgroundColor: appConfig.theme.colors.primary[550],
+                                    hover: {
+                                        backgroundColor: appConfig.theme.colors.primary[500],
+                                    }
                                 }}
-                                buttonColors={{
-                                    contrastColor: appConfig.theme.colors.neutrals["000"],
-                                    mainColor: appConfig.theme.colors.primary[550],
-                                    mainColorLight: appConfig.theme.colors.primary[500],
-                                    mainColorStrong: appConfig.theme.colors.primary[500],
-                                }}
-                                
-                            />)}
+                            >
+                                X
+                            </Text>
                         </Box>
                         <Text
                             styleSheet={{
                                 marginLeft: '58px',
-                                paddingBottom: '20px'
                             }}
                         >
-                            {message.dateSend.getHours()}:{message.dateSend.getMinutes()} {message.text}
+                            {message.text}
                         </Text>
                     </Text>
                 );
