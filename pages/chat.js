@@ -93,7 +93,7 @@ export default function ChatPage() {
                 >
 
                     {/* <MessageList mensagens={[]} /> */}
-                    <MessageList messages={messageList} handleDeleteMessage={handleDeleteMessage} />
+                    <MessageList messages={messageList} setMessageList={setMessageList} />
                     {/* {messageList.map((actualMessage) => {
                         return (
                             <li key={actualMessage.id}>
@@ -186,12 +186,14 @@ function Header() {
 }
 
 function MessageList(props) {
-    const handleDeleteMessage = props.handleDeleteMessage;
+    function removeMessage(id) {
+        const mensagemRemovida = props.messages.filter((message) => id !== message.id)
+        props.setMessageList(mensagemRemovida)
+    }
     console.log('MessageList', props);
     return (
         <Box
             tag="ul"
-
             styleSheet={{
                 overflow: 'hidden',
                 display: 'flex',
@@ -204,7 +206,6 @@ function MessageList(props) {
             {props.messages.map((message) => {
                 return (
                     <Text
-                        onClick={handleDeleteMessage}
                         key={message.id}
                         tag="li"
                         styleSheet={{
@@ -261,27 +262,26 @@ function MessageList(props) {
                                 {message.dateSend.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </Text>
 
-                            <Text
+                            <Button
+                                iconName='trash'
+                                onClick={(event)=>{
+                                    event.preventDefault();
+                                    removeMessage(message.id);
+                                }}
                                 tag="span"
                                 data-id={message.id}
                                 styleSheet={{
                                     fontSize: '15px',
-                                    fontWeight: 'bold',
                                     marginLeft: 'auto',
-                                    width: '20px',
-                                    height: '20px',
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    backgroundColor: appConfig.theme.colors.primary[550],
-                                    hover: {
-                                        backgroundColor: appConfig.theme.colors.primary[500],
-                                    }
+                                    //backgroundColor: 'rgba( 0, 0, 0, 0)',
                                 }}
-                            >
-                                X
-                            </Text>
+                                buttonColors={{
+                                    contrastColor: '#FDFDFD',
+                                    mainColor: 'rgba( 0, 0, 0, 0)',
+                                    mainColorStrong: appConfig.theme.colors.primary[550],
+                                  }}
+                            />
                         </Box>
                         <Text
                             styleSheet={{
