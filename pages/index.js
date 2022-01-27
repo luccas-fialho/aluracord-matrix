@@ -38,18 +38,9 @@ function Title(props) {
 
 export default function PaginaInicial() {
     //const username = 'luccas-fialho';
-    const [username, setUsername] = React.useState('luccas-fialho');
+    const [username, setUsername] = React.useState('');
     const roteamento = useRouter();
     const defaultProfileImage = 'https://i.imgur.com/ErUTQmz.png';
-    const [githubData, setGithubData] = React.useState('');
-
-    fetch(`https://api.github.com/users/${username}`)
-            .then((res) => {
-                return res.json()
-            })
-            .then((data) => {
-                setGithubData(data)
-            })
 
     return (
         <>
@@ -98,8 +89,7 @@ export default function PaginaInicial() {
                         </Text>
 
                         <TextField
-                            required
-                            value = {username}
+                            //value = {username}
                             onChange={(event)=>{
                                 console.log('usuario digitou', event.target.value);
                                 // Onde ta o valor?
@@ -107,6 +97,7 @@ export default function PaginaInicial() {
                                 // Trocar o valor da variavel
                                 // Através do React e avise quem precisa
                                 setUsername(valor);
+                                appConfig.username = valor;
                             }}
                             fullWidth
                             textFieldColors={{
@@ -117,7 +108,7 @@ export default function PaginaInicial() {
                                     backgroundColor: appConfig.theme.colors.neutrals[800],
                                 },
                             }}
-                            placeholder='Username'
+                            placeholder='Github username'
                         />
                         <Button
                             type='submit'
@@ -182,28 +173,6 @@ export default function PaginaInicial() {
                                 
                             }}
                         >
-                            <Text
-                                variant="body4"
-                                styleSheet={{
-                                    color: appConfig.theme.colors.primary[550],
-                                    backgroundColor: appConfig.theme.colors.neutrals[900],
-                                    padding: '3px 10px',
-                                    borderRadius: '1000px'
-                                }}
-                            >
-                                {githubData.name}
-                            </Text>
-                            <Text
-                                variant="body4"
-                                styleSheet={{
-                                    color: appConfig.theme.colors.primary[550],
-                                    backgroundColor: appConfig.theme.colors.neutrals[900],
-                                    padding: '3px 10px',
-                                    borderRadius: '1000px'
-                                }}
-                            >
-                                {githubData.location}
-                            </Text>
                         </Box>
                         )}
                     </Box>
