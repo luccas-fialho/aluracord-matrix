@@ -1,5 +1,7 @@
 import React from 'react';
 import { Box, Button, Text, Image } from '@skynexui/components';
+import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
+import IconButton from '@mui/material/IconButton';
 import appConfig from '../../config.json';
 
 export function ButtonSendSticker(props) {
@@ -11,7 +13,7 @@ export function ButtonSendSticker(props) {
         position: 'relative',
       }}
     >
-      <Button
+      {/* <Button
         styleSheet={{
           borderRadius: '50%',
           padding: '0 3px 0 0',
@@ -23,15 +25,18 @@ export function ButtonSendSticker(props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: appConfig.theme.colors.neutrals[300],
-          filter: isOpen ? 'grayscale(0)' : 'grayscale(1)',
+          backgroundColor: appConfig.theme.colors.primary[550],
+          filter: 'grayscale(0)',
           hover: {
             filter: 'grayscale(0)',
           }
         }}
         label="😋"
-        onClick={() => setOpenState(!isOpen)}
-      />
+        onMouseOver={() => setOpenState(!isOpen)}
+      /> */}
+      <IconButton color="warning" aria-label="add an alarm" onClick={() => setOpenState(!isOpen)}>
+        <EmojiEmotionsIcon />
+      </IconButton>
       {isOpen && (
         <Box
           styleSheet={{
@@ -42,15 +47,16 @@ export function ButtonSendSticker(props) {
             backgroundColor: appConfig.theme.colors.neutrals[800],
             width: {
               xs: '200px',
-              sm: '290px',
+              sm: '390px',
             },
-            height: '300px',
+            height: '600px',
             right: '30px',
             bottom: '30px',
             padding: '16px',
             boxShadow: 'rgba(4, 4, 5, 0.15) 0px 0px 0px 1px, rgba(0, 0, 0, 0.24) 0px 8px 16px 0px',
           }}
           onClick={() => setOpenState(false)}
+          //onMouseOut={() => setOpenState(false)}
         >
           <Text
             styleSheet={{

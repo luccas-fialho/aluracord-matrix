@@ -46,6 +46,7 @@ export default function ChatPage() {
     const loggedUser = roteamento.query.username;
     const [message, setMessage] = React.useState('');
     const [messageList, setMessageList] = React.useState([]);
+    
     const loadingImg = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/96dabfd2-9198-4e81-89bc-f65dc34c8613/d9ospke-5cbf474c-a9a9-4710-8b00-ab86ef85c223.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzk2ZGFiZmQyLTkxOTgtNGU4MS04OWJjLWY2NWRjMzRjODYxM1wvZDlvc3BrZS01Y2JmNDc0Yy1hOWE5LTQ3MTAtOGIwMC1hYjg2ZWY4NWMyMjMuZ2lmIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.y2JHq2ZW5H771q9JHG7gTU5WI01kSZjeqTwjK58Snzk'
 
     React.useEffect(() => {
@@ -67,12 +68,28 @@ export default function ChatPage() {
         });
     }, []);
 
+    const [data, setData] = React.useState({});
+
+    React.useEffect(() => {
+        console.log('usuario logado',loggedUser)
+
+        fetch(`https://api.github.com/users/${loggedUser}`)
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data)
+            setData(data);
+        })
+    }, [])
+
     function handleNewMessage(newMessage) {
         const message = {
             //id: messageList.length + 1,
             from: loggedUser,
             dateSend: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             text: newMessage,
+            name: data.name,
         }
 
         supabaseClient
@@ -135,7 +152,7 @@ export default function ChatPage() {
                     {/* <MessageList mensagens={[]} /> */}
                     {messageList.length !== 0 ?
                         <>
-                            <MessageList messages={messageList} setMessageList={setMessageList} />
+                            <MessageList messages={messageList} setMessageList={setMessageList} loggedUser={loggedUser}/>
                             <Box
                                 as="form"
                                 styleSheet={{
@@ -178,21 +195,6 @@ export default function ChatPage() {
                                     onStickerClick={(sticker) => {
                                         console.log('salva esse sticker no banco');
                                         handleNewMessage(`:sticker: ${sticker}`);
-                                    }}
-                                />
-                                <Button
-                                    type='submit'
-                                    label='Enviar'
-                                    onClick={(event) => {
-                                        event.preventDefault();
-                                        if (message.length > 0)
-                                            handleNewMessage(message);
-                                    }}
-                                    buttonColors={{
-                                        contrastColor: appConfig.theme.colors.neutrals["000"],
-                                        mainColor: appConfig.theme.colors.primary[550],
-                                        mainColorLight: appConfig.theme.colors.primary[500],
-                                        mainColorStrong: appConfig.theme.colors.primary[500],
                                     }}
                                 />
                             </Box>
@@ -238,6 +240,8 @@ function Header() {
 }
 
 function MessageList(props) {
+    
+
     function removeMessage(idItem) {
         // Defines a new array without the message you selected to delete (not from the database)
         const newArray = props.messages.filter((message) => idItem !== message.id)
@@ -323,7 +327,7 @@ function MessageList(props) {
                                 }}
                                 tag="strong"
                             >
-                                {message.from}
+                                {message.name}
                             </Text>
                             <Text
                                 styleSheet={{
