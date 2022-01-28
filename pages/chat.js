@@ -13,10 +13,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5v
 const SUPABASE_URL = 'https://wdnerklsmytpskaobbaw.supabase.co'
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function listenMessagesIRT(addMessage){
+function listenMessagesIRT(addMessage) {
     return supabaseClient
         .from('messages')
-        .on('INSERT', ( liveRes ) => {
+        .on('INSERT', (liveRes) => {
             addMessage(liveRes.new);
         })
         .subscribe();
@@ -46,7 +46,7 @@ export default function ChatPage() {
     const loggedUser = roteamento.query.username;
     const [message, setMessage] = React.useState('');
     const [messageList, setMessageList] = React.useState([]);
-    
+
     const loadingImg = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/96dabfd2-9198-4e81-89bc-f65dc34c8613/d9ospke-5cbf474c-a9a9-4710-8b00-ab86ef85c223.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzk2ZGFiZmQyLTkxOTgtNGU4MS04OWJjLWY2NWRjMzRjODYxM1wvZDlvc3BrZS01Y2JmNDc0Yy1hOWE5LTQ3MTAtOGIwMC1hYjg2ZWY4NWMyMjMuZ2lmIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.y2JHq2ZW5H771q9JHG7gTU5WI01kSZjeqTwjK58Snzk'
 
     React.useEffect(() => {
@@ -71,16 +71,16 @@ export default function ChatPage() {
     const [data, setData] = React.useState({});
 
     React.useEffect(() => {
-        console.log('usuario logado',loggedUser)
+        console.log('usuario logado', loggedUser)
 
         fetch(`https://api.github.com/users/${loggedUser}`)
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            console.log(data)
-            setData(data);
-        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data)
+                setData(data);
+            })
     }, [])
 
     function handleNewMessage(newMessage) {
@@ -99,7 +99,7 @@ export default function ChatPage() {
             ])
             .then(({ data }) => {
                 console.log('Criando Mensagem', data)
-                
+
             });
 
         setMessage('');
@@ -152,7 +152,7 @@ export default function ChatPage() {
                     {/* <MessageList mensagens={[]} /> */}
                     {messageList.length !== 0 ?
                         <>
-                            <MessageList messages={messageList} setMessageList={setMessageList} loggedUser={loggedUser}/>
+                            <MessageList messages={messageList} setMessageList={setMessageList} loggedUser={loggedUser} />
                             <Box
                                 as="form"
                                 styleSheet={{
@@ -191,7 +191,7 @@ export default function ChatPage() {
                                         color: appConfig.theme.colors.neutrals[200],
                                     }}
                                 />
-                                <ButtonSendSticker 
+                                <ButtonSendSticker
                                     onStickerClick={(sticker) => {
                                         console.log('salva esse sticker no banco');
                                         handleNewMessage(`:sticker: ${sticker}`);
@@ -240,7 +240,7 @@ function Header() {
 }
 
 function MessageList(props) {
-    
+    const [isOpen, setOpenState] = React.useState('');
 
     function removeMessage(idItem) {
         // Defines a new array without the message you selected to delete (not from the database)
@@ -303,9 +303,12 @@ function MessageList(props) {
                             }}
                         >
                             <Image
-                                onMouseOver={(event) => {
+                                onMouseEnter ={(event) => {
                                     //console.log('emcima da foto');
                                     //console.log(event);
+                                   // console.log(event.target.src)
+
+                                    
                                 }}
                                 styleSheet={{
                                     width: '40px',
@@ -318,6 +321,7 @@ function MessageList(props) {
                                 }}
                                 src={`https://github.com/${message.from}.png`}
                             />
+                
                             <Text
                                 styleSheet={{
                                     fontSize: '20px',
@@ -342,7 +346,7 @@ function MessageList(props) {
                                 {message.dateSend}
                             </Text>
 
-                            <Button
+                            {message.from === props.loggedUser && <Button
                                 iconName='trash'
                                 onClick={(event) => {
                                     event.preventDefault();
@@ -361,7 +365,7 @@ function MessageList(props) {
                                     mainColor: 'rgba( 0, 0, 0, 0)',
                                     mainColorStrong: appConfig.theme.colors.primary["000"],
                                 }}
-                            />
+                            />}
                         </Box>
                         <Text
                             styleSheet={{
@@ -371,13 +375,13 @@ function MessageList(props) {
                         >
                             {message.text.startsWith(':sticker:')
                                 ? (
-                                    <Image 
+                                    <Image
                                         styleSheet={{
                                             width: 'auto',
                                             height: '250px',
                                             marginLeft: '48px',
                                         }}
-                                        src={message.text.replace(':sticker:', '')} 
+                                        src={message.text.replace(':sticker:', '')}
                                     />
                                 )
                                 : (

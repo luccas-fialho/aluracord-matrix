@@ -75,6 +75,7 @@ export function ButtonSendSticker(props) {
               flex: 1,
               paddingTop: '16px',
               overflow: 'auto',
+              cursor: 'pointer',
             }}
           >
             {appConfig.stickers.map((sticker) => (
