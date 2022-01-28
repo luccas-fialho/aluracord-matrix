@@ -4,12 +4,23 @@ import appConfig from '../config.json';
 import { createClient } from '@supabase/supabase-js'
 import Backdrop from '@mui/material/Backdrop';
 import Avatar from '@mui/material/Avatar';
+import { useRouter } from 'next/router'
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker'
 
 //import Button from '@mui/material/Button';
 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI5MzgzOSwiZXhwIjoxOTU4ODY5ODM5fQ.0cQfsA6WJusElj5WB1pUJjuP9s574QbYHZrX2TEs1_Q'
 const SUPABASE_URL = 'https://wdnerklsmytpskaobbaw.supabase.co'
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function listenMessagesIRT(addMessage){
+    return supabaseClient
+        .from('messages')
+        .on('INSERT', ( liveRes ) => {
+            addMessage(liveRes.new);
+        })
+        .subscribe();
+}
 
 function Title(props) {
     const Tag = props.tag || 'h1';
@@ -31,7 +42,8 @@ function Title(props) {
 }
 
 export default function ChatPage() {
-    // Sua lógica vai aqui
+    const roteamento = useRouter();
+    const loggedUser = roteamento.query.username;
     const [message, setMessage] = React.useState('');
     const [messageList, setMessageList] = React.useState([]);
     const loadingImg = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/96dabfd2-9198-4e81-89bc-f65dc34c8613/d9ospke-5cbf474c-a9a9-4710-8b00-ab86ef85c223.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzk2ZGFiZmQyLTkxOTgtNGU4MS04OWJjLWY2NWRjMzRjODYxM1wvZDlvc3BrZS01Y2JmNDc0Yy1hOWE5LTQ3MTAtOGIwMC1hYjg2ZWY4NWMyMjMuZ2lmIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.y2JHq2ZW5H771q9JHG7gTU5WI01kSZjeqTwjK58Snzk'
@@ -45,12 +57,20 @@ export default function ChatPage() {
                 console.log('Dados da consulta', data);
                 setMessageList(data);
             });
+        listenMessagesIRT((newMessage) => {
+            setMessageList((actualListValue) => {
+                return [
+                    newMessage,
+                    ...actualListValue
+                ]
+            });
+        });
     }, []);
 
     function handleNewMessage(newMessage) {
         const message = {
             //id: messageList.length + 1,
-            from: 'luccas-fialho',
+            from: loggedUser,
             dateSend: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             text: newMessage,
         }
@@ -62,18 +82,14 @@ export default function ChatPage() {
             ])
             .then(({ data }) => {
                 console.log('Criando Mensagem', data)
-                setMessageList([
-                    data[0],
-                    ...messageList
-                ]);
-            }, []);
+                
+            });
 
         setMessage('');
     }
 
-    // ./Sua lógica vai aqui
     return (
-        
+
         <Box
             styleSheet={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -111,78 +127,87 @@ export default function ChatPage() {
                         backgroundColor: 'rgba( 0, 0, 0, 0.6)',
                         flexDirection: 'column',
                         borderRadius: '5px',
-                        padding: '16px',
+                        //padding: '16px',
 
                     }}
                 >
 
                     {/* <MessageList mensagens={[]} /> */}
-                    {messageList.length !== 0 ? <MessageList messages={messageList} setMessageList={setMessageList} /> :
+                    {messageList.length !== 0 ?
+                        <>
+                            <MessageList messages={messageList} setMessageList={setMessageList} />
+                            <Box
+                                as="form"
+                                styleSheet={{
+                                    display: 'flex',
+                                    position: 'relative',
+                                    padding: '7px',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <TextField
+                                    value={message}
+                                    onChange={(event) => {
+                                        const value = event.target.value;
+                                        setMessage(value);
+                                    }}
+                                    onKeyPress={(event) => {
+                                        if (event.key === 'Enter') {
+                                            event.preventDefault();
+                                            if (message.length > 0)
+                                                handleNewMessage(message);
+                                        }
+                                    }}
+                                    placeholder="Insira sua mensagem aqui..."
+                                    color='orange'
+                                    type="textarea"
+                                    wrap="hard"
+                                    styleSheet={{
+                                        width: '100%',
+                                        border: '0',
+                                        resize: 'none',
+                                        borderRadius: '5px',
+                                        marginTop: '10px',
+                                        //padding: '6px 8px',
+                                        backgroundColor: appConfig.theme.colors.neutrals[800],
+                                        marginRight: '12px',
+                                        color: appConfig.theme.colors.neutrals[200],
+                                    }}
+                                />
+                                <ButtonSendSticker 
+                                    onStickerClick={(sticker) => {
+                                        console.log('salva esse sticker no banco');
+                                        handleNewMessage(`:sticker: ${sticker}`);
+                                    }}
+                                />
+                                <Button
+                                    type='submit'
+                                    label='Enviar'
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        if (message.length > 0)
+                                            handleNewMessage(message);
+                                    }}
+                                    buttonColors={{
+                                        contrastColor: appConfig.theme.colors.neutrals["000"],
+                                        mainColor: appConfig.theme.colors.primary[550],
+                                        mainColorLight: appConfig.theme.colors.primary[500],
+                                        mainColorStrong: appConfig.theme.colors.primary[500],
+                                    }}
+                                />
+                            </Box>
+                        </>
+                        :
                         <Backdrop
                             sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
                             open
                         >
-
                             <Avatar
                                 alt="Remy Sharp"
                                 src={loadingImg}
                                 sx={{ width: 200, height: 200 }}
                             />
-
                         </Backdrop>}
-
-                    <Box
-                        as="form"
-                        styleSheet={{
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <TextField
-                            value={message}
-                            onChange={(event) => {
-                                const value = event.target.value;
-                                setMessage(value);
-                            }}
-                            onKeyPress={(event) => {
-                                if (event.key === 'Enter') {
-                                    event.preventDefault();
-                                    if (message.length > 0)
-                                        handleNewMessage(message);
-                                }
-                            }}
-                            placeholder="Insira sua mensagem aqui..."
-                            color='orange'
-                            type="textarea"
-                            wrap="hard"
-                            styleSheet={{
-                                width: '100%',
-                                border: '0',
-                                resize: 'none',
-                                borderRadius: '5px',
-                                marginTop: '20px',
-                                padding: '6px 8px',
-                                backgroundColor: appConfig.theme.colors.neutrals[800],
-                                marginRight: '12px',
-                                color: appConfig.theme.colors.neutrals[200],
-                            }}
-                        />
-                        <Button
-                            type='submit'
-                            label='Enviar'
-                            onClick={(event) => {
-                                event.preventDefault();
-                                if (message.length > 0)
-                                    handleNewMessage(message);
-                            }}
-                            buttonColors={{
-                                contrastColor: appConfig.theme.colors.neutrals["000"],
-                                mainColor: appConfig.theme.colors.primary[550],
-                                mainColorLight: appConfig.theme.colors.primary[500],
-                                mainColorStrong: appConfig.theme.colors.primary[500],
-                            }}
-                        />
-                    </Box>
                 </Box>
             </Box>
         </Box>
@@ -219,21 +244,21 @@ function MessageList(props) {
 
         console.log('novo array', newArray);
         console.log('tamanho', newArray.length);
-        if(newArray.length !== 0){
+        if (newArray.length !== 0) {
             supabaseClient
-            .from('messages')
-            .delete()
-            .match({ id: idItem }) // Deletes from the database the messsage with the id passed
-            .then(({ data }) => {
-                console.log('Deletando Mensagem', data)
-                // Sets the new array to the message list just to React visualize
-                props.setMessageList(newArray)
-            });
-        }else{
+                .from('messages')
+                .delete()
+                .match({ id: idItem }) // Deletes from the database the messsage with the id passed
+                .then(({ data }) => {
+                    console.log('Deletando Mensagem', data)
+                    // Sets the new array to the message list just to React visualize
+                    props.setMessageList(newArray)
+                });
+        } else {
             alert('Melhor não fazer isso! :(');
         }
 
-        
+
     }
     console.log('MessageList', props);
     return (
@@ -275,12 +300,12 @@ function MessageList(props) {
                         >
                             <Image
                                 onMouseOver={(event) => {
-                                    console.log('emcima da foto');
-                                    console.log(event);
+                                    //console.log('emcima da foto');
+                                    //console.log(event);
                                 }}
                                 styleSheet={{
-                                    width: '50px',
-                                    height: '50px',
+                                    width: '40px',
+                                    height: '40px',
                                     borderRadius: '50%',
                                     display: 'inline-block',
                                     marginRight: '8px',
@@ -292,7 +317,9 @@ function MessageList(props) {
                             <Text
                                 styleSheet={{
                                     fontSize: '20px',
-                                    color: appConfig.theme.colors.primary[500]
+                                    color: appConfig.theme.colors.primary[500],
+                                    marginTop: '15px',
+                                    //marginLeft: '10px',
                                 }}
                                 tag="strong"
                             >
@@ -303,6 +330,7 @@ function MessageList(props) {
                                     fontSize: '14px',
                                     marginLeft: '8px',
                                     color: appConfig.theme.colors.neutrals[300],
+                                    marginTop: '13px',
 
                                 }}
                                 tag="span"
@@ -325,18 +353,32 @@ function MessageList(props) {
                                     //backgroundColor: 'rgba( 0, 0, 0, 0)',
                                 }}
                                 buttonColors={{
-                                    contrastColor: '#FDFDFD',
+                                    contrastColor: appConfig.theme.colors.primary[550],
                                     mainColor: 'rgba( 0, 0, 0, 0)',
-                                    mainColorStrong: appConfig.theme.colors.primary[550],
+                                    mainColorStrong: appConfig.theme.colors.primary["000"],
                                 }}
                             />
                         </Box>
                         <Text
                             styleSheet={{
-                                marginLeft: '58px',
+                                marginLeft: '48px',
+
                             }}
                         >
-                            {message.text}
+                            {message.text.startsWith(':sticker:')
+                                ? (
+                                    <Image 
+                                        styleSheet={{
+                                            width: 'auto',
+                                            height: '250px',
+                                            marginLeft: '48px',
+                                        }}
+                                        src={message.text.replace(':sticker:', '')} 
+                                    />
+                                )
+                                : (
+                                    message.text
+                                )}
                         </Text>
                     </Text>
                 );
