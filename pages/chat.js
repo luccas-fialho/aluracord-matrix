@@ -187,8 +187,7 @@ export default function ChatPage() {
                                             }
                                         }
                                     }}
-                                    placeholder="Insira sua mensagem aqui..."
-                                    color='orange'
+                                    placeholder="Insert your message here..."
                                     type="textarea"
                                     wrap="hard"
                                     styleSheet={{
@@ -205,8 +204,13 @@ export default function ChatPage() {
                                 />
                                 <ButtonSendSticker
                                     onStickerClick={(sticker) => {
-                                        console.log('salva esse sticker no banco');
-                                        handleNewMessage(`:sticker: ${sticker}`);
+                                        if(loggedUser !== 'undefined'){
+                                            console.log('salva esse sticker no banco');
+                                            handleNewMessage(`:sticker: ${sticker}`);
+                                        }else{
+                                            alert('Você deve estar logado para mandar mensagens')
+                                            roteamento.push('/')
+                                        }
                                     }}
                                 />
                             </Box>
