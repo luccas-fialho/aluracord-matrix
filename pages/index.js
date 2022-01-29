@@ -42,6 +42,12 @@ export default function PaginaInicial() {
     const roteamento = useRouter();
     const defaultProfileImage = 'https://i.imgur.com/ErUTQmz.png';
 
+    if(typeof window !== 'undefined'){
+        if(localStorage.getItem('username')){
+            localStorage.removeItem('username');
+        }    
+    }
+
     return (
         <>
             <Box
@@ -76,6 +82,7 @@ export default function PaginaInicial() {
                         onSubmit={(event)=>{
                             event.preventDefault();
                             console.log('Alguem submeteu o form');
+                            //localStorage.setItem('username', username);
                             roteamento.push(`/chat?username=${username}`);
                         }}
                         styleSheet={{
@@ -97,7 +104,8 @@ export default function PaginaInicial() {
                                 // Trocar o valor da variavel
                                 // Através do React e avise quem precisa
                                 setUsername(valor);
-                                appConfig.username = valor;
+                                //console.log(username);
+    
                             }}
                             fullWidth
                             textFieldColors={{

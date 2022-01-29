@@ -43,7 +43,14 @@ function Title(props) {
 
 export default function ChatPage() {
     const roteamento = useRouter();
-    const loggedUser = roteamento.query.username;
+    let loggedUser = roteamento.query.username;
+    if(typeof window !== 'undefined'){
+        if(localStorage.getItem('username')){
+            loggedUser = localStorage.getItem('username')
+        }else{
+            localStorage.setItem('username', loggedUser);
+        }         
+    }
     const [message, setMessage] = React.useState('');
     const [messageList, setMessageList] = React.useState([]);
 
@@ -55,7 +62,7 @@ export default function ChatPage() {
             .select('*')
             .order('id', { ascending: false })
             .then(({ data }) => {
-                console.log('Dados da consulta', data);
+                //console.log('Dados da consulta', data);
                 setMessageList(data);
             });
         listenMessagesIRT((newMessage) => {
@@ -71,14 +78,13 @@ export default function ChatPage() {
     const [data, setData] = React.useState({});
 
     React.useEffect(() => {
-        console.log('usuario logado', loggedUser)
+        //console.log('usuario logado ', loggedUser)
 
         fetch(`https://api.github.com/users/${loggedUser}`)
             .then((response) => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
                 setData(data);
             })
     }, [])
@@ -87,7 +93,7 @@ export default function ChatPage() {
         const message = {
             //id: messageList.length + 1,
             from: loggedUser,
-            dateSend: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            dateSend: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             text: newMessage,
             name: data.name,
         }
@@ -99,12 +105,11 @@ export default function ChatPage() {
             ])
             .then(({ data }) => {
                 console.log('Criando Mensagem', data)
-
             });
 
         setMessage('');
     }
-
+    
     return (
 
         <Box
@@ -224,6 +229,7 @@ function Header() {
                     PixelChat
                 </Title>
                 <Button
+                    //onClick={localStorage.removeItem('username')}
                     type='submit'
                     label='Logout'
                     buttonColors={{
@@ -246,8 +252,6 @@ function MessageList(props) {
         // Defines a new array without the message you selected to delete (not from the database)
         const newArray = props.messages.filter((message) => idItem !== message.id)
 
-        console.log('novo array', newArray);
-        console.log('tamanho', newArray.length);
         if (newArray.length !== 0) {
             supabaseClient
                 .from('messages')
@@ -304,10 +308,6 @@ function MessageList(props) {
                         >
                             <Image
                                 onMouseEnter ={(event) => {
-                                    //console.log('emcima da foto');
-                                    //console.log(event);
-                                   // console.log(event.target.src)
-
                                     
                                 }}
                                 styleSheet={{
