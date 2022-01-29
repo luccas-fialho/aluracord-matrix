@@ -44,11 +44,13 @@ function Title(props) {
 export default function ChatPage() {
     const roteamento = useRouter();
     let loggedUser = roteamento.query.username;
+    
     if(typeof window !== 'undefined'){
         if(localStorage.getItem('username')){
             loggedUser = localStorage.getItem('username')
         }else{
             localStorage.setItem('username', loggedUser);
+            //roteamento.push('/')
         }         
     }
     const [message, setMessage] = React.useState('');
@@ -176,8 +178,13 @@ export default function ChatPage() {
                                     onKeyPress={(event) => {
                                         if (event.key === 'Enter') {
                                             event.preventDefault();
-                                            if (message.length > 0)
-                                                handleNewMessage(message);
+                                            if(loggedUser !== 'undefined'){
+                                                if (message.length > 0)
+                                                    handleNewMessage(message);
+                                            }else{
+                                                alert('Você deve estar logado para mandar mensagens')
+                                                roteamento.push('/')
+                                            }
                                         }
                                     }}
                                     placeholder="Insira sua mensagem aqui..."
