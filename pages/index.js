@@ -82,8 +82,9 @@ export default function PaginaInicial() {
                         onSubmit={(event)=>{
                             event.preventDefault();
                             console.log('Alguem submeteu o form');
-                            //localStorage.setItem('username', username);
-                            roteamento.push(`/chat?username=${username}`);
+                            localStorage.setItem('username', username);
+                            //roteamento.push(`/chat?username=${username}`);
+                            roteamento.push(`/chat`);
                         }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',

@@ -50,8 +50,11 @@ export default function ChatPage() {
             loggedUser = localStorage.getItem('username')
         }else{
             localStorage.setItem('username', loggedUser);
-            //roteamento.push('/')
-        }         
+        }    
+        if(loggedUser === 'undefined'){
+            //alert('vc n ta logado')
+            roteamento.push('/')
+        }     
     }
     const [message, setMessage] = React.useState('');
     const [messageList, setMessageList] = React.useState([]);
