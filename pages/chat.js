@@ -102,6 +102,10 @@ export default function ChatPage() {
             text: newMessage,
             name: data.name,
         }
+        
+        if(!data.name){
+            message.name = loggedUser
+        }
 
         supabaseClient
             .from('messages')
